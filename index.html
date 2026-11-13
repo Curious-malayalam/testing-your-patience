@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Your Patience</title>
+</head>
+<body>
+<h1>Test Your Patience</h1>
+<p>Are you patient enough?</p>
+
+<button onclick="getLocation()">
+To test your patience level click here
+</button>
+
+<p id="result"></p>
+
+<script>
+function getLocation() {
+  if (!navigator.geolocation) {
+    alert("Location is not supported.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      document.getElementById("result").innerText =
+        "Latitude: " + latitude +
+        "\nLongitude: " + longitude;
+    },
+    function() {
+      document.getElementById("result").innerText =
+        "Location permission was not granted.";
+    }
+  );
+}
+</script>
+</body>
+</html>
