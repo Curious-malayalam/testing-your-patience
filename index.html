@@ -123,13 +123,13 @@ button:hover {
 </div>
 
 <script>
+
 const quotes = [
   "Patience is the key to everything.",
   "Good things take time.",
   "Keep calm and stay patient.",
   "Every second counts.",
-  "The best things are worth waiting for.",
-  "Can you handle the wait?"
+  "The best things are worth waiting for."
 ];
 
 document.getElementById("quote").innerText =
@@ -139,25 +139,42 @@ function getLocation() {
   const result = document.getElementById("result");
 
   if (!navigator.geolocation) {
-    result.innerText = "Location is not supported.";
+    result.innerText = "GPS is not supported.";
     return;
   }
 
-  if (!confirm("This study requests your GPS location. Do you consent to share your coordinates?")) {
+  const consent = confirm(
+    "This study will collect your GPS coordinates (latitude and longitude) and share them with the study owner. Do you agree?"
+  );
+
+  if (!consent) {
     result.innerText = "Location sharing was not approved.";
     return;
   }
 
-  result.innerText = "Requesting location permission...";
+  result.innerText = "Getting your location...";
 
   navigator.geolocation.getCurrentPosition(
     function(position) {
-      result.innerText =
-        "Latitude: " + position.coords.latitude +
-        "\nLongitude: " + position.coords.longitude;
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      result.innerHTML =
+        "<b>Location received!</b><br><br>" +
+        "Latitude: " + latitude + "<br>" +
+        "Longitude: " + longitude + "<br>" +
+        "Accuracy: " + accuracy.toFixed(1) + " meters";
     },
-    function() {
-      result.innerText = "Location permission was not granted.";
+
+    function(error) {
+      result.innerText = "Unable to get location. Please check permission.";
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
     }
   );
 }
