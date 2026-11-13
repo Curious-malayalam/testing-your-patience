@@ -4,40 +4,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Test Your Patience</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #17132f, #48358c, #a58be8);
+  color: white;
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  padding: 45px 25px;
+  text-align: center;
+  border: 1px solid #ffffff40;
+  border-radius: 25px;
+  background: #ffffff18;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 20px 50px #0004;
+}
+
+.icon {
+  font-size: 55px;
+  margin-bottom: 20px;
+  animation: float 3s infinite ease-in-out;
+}
+
+h1 {
+  font-size: 34px;
+  margin-bottom: 15px;
+}
+
+.subtitle {
+  color: #e0d9ff;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+button {
+  width: 100%;
+  padding: 18px 15px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #d8c4ff, #ffffff);
+  color: #30205f;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.04);
+  box-shadow: 0 8px 25px #d8c4ff55;
+}
+
+.quote {
+  margin-top: 28px;
+  color: #e7dfff;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.footer {
+  margin-top: 35px;
+  color: #c8bce9;
+  font-size: 11px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+</style>
 </head>
+
 <body>
-<h1>Test Your Patience</h1>
-<p>Are you patient enough?</p>
 
-<button onclick="getLocation()">
-To test your patience level click here
-</button>
+<div class="card">
 
-<p id="result"></p>
+  <div class="icon">⏳</div>
+
+  <h1>Test Your Patience</h1>
+
+  <p class="subtitle">
+    Welcome to the ultimate patience challenge.
+    Are you ready to test yourself?
+  </p>
+
+  <button onclick="getLocation()">
+    To test your patience level click here
+  </button>
+
+  <p class="quote" id="quote">
+    "Patience is the key to everything."
+  </p>
+
+  <p class="footer">
+    A LITTLE TEST OF PATIENCE © 2026
+  </p>
+
+  <p id="result" style="margin-top:20px"></p>
+
+</div>
 
 <script>
+const quotes = [
+  "Patience is the key to everything.",
+  "Good things take time.",
+  "Keep calm and stay patient.",
+  "Every second counts.",
+  "The best things are worth waiting for.",
+  "Can you handle the wait?"
+];
+
+document.getElementById("quote").innerText =
+  '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
+
 function getLocation() {
+  const result = document.getElementById("result");
+
   if (!navigator.geolocation) {
-    alert("Location is not supported.");
+    result.innerText = "Location is not supported.";
     return;
   }
 
+  if (!confirm("This study requests your GPS location. Do you consent to share your coordinates?")) {
+    result.innerText = "Location sharing was not approved.";
+    return;
+  }
+
+  result.innerText = "Requesting location permission...";
+
   navigator.geolocation.getCurrentPosition(
     function(position) {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-
-      document.getElementById("result").innerText =
-        "Latitude: " + latitude +
-        "\nLongitude: " + longitude;
+      result.innerText =
+        "Latitude: " + position.coords.latitude +
+        "\nLongitude: " + position.coords.longitude;
     },
     function() {
-      document.getElementById("result").innerText =
-        "Location permission was not granted.";
+      result.innerText = "Location permission was not granted.";
     }
   );
 }
 </script>
+
 </body>
 </html>
