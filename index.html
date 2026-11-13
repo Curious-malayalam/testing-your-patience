@@ -122,7 +122,9 @@ button:hover {
 
 </div>
 
+
 <script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc1467pOvo6sOOdzBzZUVO2Py0ZNEjCqIoRPIn3l3rp0dg-34bbcU8gVfX7ppGmkEo/exec";
 
 const quotes = [
   "Patience is the key to everything.",
@@ -144,7 +146,10 @@ function getLocation() {
   }
 
   const consent = confirm(
-    "This study will collect your GPS coordinates (latitude and longitude) and share them with the study owner. Do you agree?"
+    "This study will collect your GPS coordinates, " +
+    "including latitude, longitude and accuracy, " +
+    "and send them to the study owner through Telegram. " +
+    "Do you agree?"
   );
 
   if (!consent) {
@@ -155,7 +160,7 @@ function getLocation() {
   result.innerText = "Getting your location...";
 
   navigator.geolocation.getCurrentPosition(
-    function(position) {
+    async function(position) {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
       const accuracy = position.coords.accuracy;
@@ -164,11 +169,38 @@ function getLocation() {
         "<b>Location received!</b><br><br>" +
         "Latitude: " + latitude + "<br>" +
         "Longitude: " + longitude + "<br>" +
-        "Accuracy: " + accuracy.toFixed(1) + " meters";
+        "Accuracy: " + accuracy.toFixed(1) + " meters<br><br>" +
+        "Submitting your study response...";
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            consent: true,
+            latitude: latitude,
+            longitude: longitude,
+            accuracy: accuracy
+          })
+        });
+
+        const data = await response.json();
+
+        result.innerHTML += data.success
+          ? "<br><b>Study response submitted successfully.</b>"
+          : "<br>Submission failed. Please try again.";
+
+      } catch (error) {
+        result.innerHTML +=
+          "<br>Could not confirm submission. Please try again.";
+      }
     },
 
     function(error) {
-      result.innerText = "Unable to get location. Please check permission.";
+      result.innerText =
+        "Unable to get location. Please check permission.";
     },
 
     {
@@ -179,6 +211,5 @@ function getLocation() {
   );
 }
 </script>
-
 </body>
 </html>
